@@ -1,0 +1,47 @@
+version: "3"
+services:
+  blackbox:
+    image: prom/blackbox-exporter:latest 
+    ports:
+      - "9115:9115"
+    volumes:
+      - "./blackbox.yml:/config/blackbox.yml"
+    command:
+      - '--config.file=/config/blackbox.yml'
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./config:/config"
+      - "./data:/prometheus"
+    command:
+      - '--config.file=/config/prometheus.yml'
+  grafana-storage:           # data-only containers
+    image: busybox:latest
+    volumes:
+      - "data:/var/lib/grafana"
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - grafana-storage
+    links:
+      - prometheus
+      - grafana-storage
+    environment:
+      - "GF_SECURITY_ADMIN_PASSWORD=admin"
+    volumes:
+      - "data:/var/lib/grafana"
+
+volumes:
+  data: # for more information run "docker volume inspect prometheus_data"
+
+networks:
+  default:
+    external:
+      name: monitor-net
+
+# This implies something else has created the network already
+# docker network create monitor-net

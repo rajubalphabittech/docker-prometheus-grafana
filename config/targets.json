@@ -1,0 +1,14 @@
+[
+  {
+    "targets": [ 
+      "google.com", 
+      "youtube.com",
+      "prometheus.io", 
+      "grafana.com"
+    ],
+    "labels": {
+      "env": "prod",
+      "job": "mysite"
+    }
+  }
+]
